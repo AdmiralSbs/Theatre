@@ -19,8 +19,11 @@ public class Movie implements Serializable{
         return name;
     }
 
-    public int getLength() {
-        return length;
+    public int getLengthRounded() {
+        if (length % 30 == 0) return length;
+        else {
+            return 30*(length/30 + 1);
+        }
     }
 
     private String getLengthPretty() {

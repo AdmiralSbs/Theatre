@@ -122,7 +122,7 @@ public class TheatreManager {
         int length, theatreNum;
 
         Name_Loop:
-        while (!good) {
+        while (true) {
             name = getAcceptableString("Enter Movie Name: ", "Invalid Input");
             for (Theatre t : theatres)
                 if (t.getMovie() != null) {
@@ -131,11 +131,11 @@ public class TheatreManager {
                         continue Name_Loop;
                     }
                 }
-            good = true;
+            break;
         }
         genre = getAcceptableString("Enter Movie Genre: ", "Invalid Input");
         rating = getAcceptableString("Enter Movie Rating: ", "Invalid Input", RATINGS);
-        length = getInput("Enter Movie Length (90, 120, 150): ", new int[]{90, 120, 150});
+        length = getInput(90, 150, "Enter Movie Length (90-150 min): ");
 
         ArrayList<Integer> ar = new ArrayList<>();
         for (int i = 0; i < 10; i++) if (theatres[i].getMovie() == null) ar.add(i);
@@ -172,7 +172,7 @@ public class TheatreManager {
             System.out.println("No Theatres To Swap");
             return;
         }
-        
+
         int[] arr = new int[ar.size()];
         for (int i = 0; i < arr.length; i++) arr[i] = ar.get(i) + 1;
         int t1 = getInput("Enter First Theatre Number: ", arr) - 1;
@@ -194,8 +194,8 @@ public class TheatreManager {
 
     private void addShowTime() {
         int sum = 0, num, num2;
-        for (Theatre t : theatres) sum += t.getShows().length;
-        if (sum == 30) {
+        for (Theatre t : theatres) if (t.getShows()[2] != null) sum++;
+        if (sum == 10) {
             System.out.println("All Theatres Have Three Showings Already");
             return;
         }
@@ -436,7 +436,7 @@ public class TheatreManager {
     }
 
     private boolean willThisShowingLockUpTheTheatre(Showing s, Movie m) {
-        int movieLength = m.getLength();
+        int movieLength = m.getLengthRounded();
         int showingStart = s.getShowTime();
 
         int spotsAllowed = 0;
@@ -451,7 +451,7 @@ public class TheatreManager {
     }
 
     private boolean doesThisShowingFitTheTheatre(Showing s, Theatre t) {
-        int space = t.getMovie().getLength() + 30;
+        int space = t.getMovie().getLengthRounded() + 30;
         for (Showing show : t.getShows())
             if (Math.abs(show.getShowTime() - s.getShowTime()) < space) return false;
         return true;
