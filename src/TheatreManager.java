@@ -143,7 +143,7 @@ public class TheatreManager {
         for (int i = 0; i < arr.length; i++) arr[i] = ar.get(i) + 1;
         theatreNum = getInput("Enter Theatre Number: ", arr) - 1;
 
-        theatres[theatreNum].setMovie(new Movie(name, genre, rating, length));
+        theatres[theatreNum].setMovie(new Movie(name, rating, genre, length));
         System.out.println(theatres[theatreNum].getMovie().getName() + " has been added to Theatre " + (theatreNum+1));
     }
 
@@ -163,6 +163,7 @@ public class TheatreManager {
         }
         System.out.println(theatres[num].getMovie().getName() + " has been removed from Theatre " + (num+1));
         theatres[num].setMovie(null);
+        theatres[num].setShows(new Showing[3]);
     }
 
     private void changeAssignedTheatre() {
@@ -194,16 +195,24 @@ public class TheatreManager {
 
     private void addShowTime() {
         int sum = 0, num, num2;
-        for (Theatre t : theatres) if (t.getShows()[2] != null) sum++;
-        if (sum == 10) {
+        for (Theatre t : theatres) {
+            if (t.getMovie() == null) sum += 11;
+            if (t.getShows()[2] != null) sum++;
+        }
+        if (sum % 11 == 10) { //Stored it in base 11 because I'm lazy
             System.out.println("All Theatres Have Three Showings Already");
+            return;
+        } else if (sum / 11 == 10) {
+            System.out.println("No Theatre Has a Movie");
             return;
         }
 
         while (true) {
             num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name");
-            if (theatres[num].getShows().length == 3) {
+            if (theatres[num].getShows()[2] != null) {
                 System.out.println("That Theatre already has three showings");
+            } else if (theatres[num].getMovie() == null) {
+                System.out.println("That Theatre has no assigned show");
             } else break;
         }
 
@@ -216,7 +225,7 @@ public class TheatreManager {
         while (true) {
             input = getAcceptableString("Enter ShowTime in hh:mm", "Invalid Time", times);
             if (input.length() == 4) input = "0" + input;
-            num2 = (Integer.parseInt(input.substring(0, 2)) % 12) * 60 + Integer.parseInt(input.substring(3));
+            num2 = (Integer.parseInt(input.substring(0, 2)) % 12) * 60 + Integer.parseInt(input.substring(3)); //Convert time to minutes after 12
             s = new Showing(num2, 0);
             if (willThisShowingLockUpTheTheatre(s, theatres[num].getMovie()) || !doesThisShowingFitTheTheatre(s, theatres[num])) {
                 System.out.println("Showing Doesn't Fit");
@@ -256,32 +265,41 @@ public class TheatreManager {
 
     private void purchaseTickets() {
         int sum = 0;
-        for (Theatre t : theatres)
+        for (Theatre t : theatres) {
             for (Showing s : t.getShows())
                 if (s != null)
                     if (s.getSeatsSold() < t.getNumSeats()) sum++;
-        if (sum == 0) {
-            System.out.println("All Showings For All Movies Are Filled");
+            if (t.getMovie() != null) sum += 11;
+        }
+        if (sum / 11 == 0) {
+            System.out.println("No Theatre has a movie");
+            return;
+        } else if (sum % 11 == 0) {
+            System.out.println("All Showings for all Movies are filled");
             return;
         }
         int num;
         while (true) {
             num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name");
             sum = 0;
+            if (theatres[num].getShows()[0] == null) {
+                System.out.println("That Theatre has no Showings");
+                continue;
+            }
             for (Showing s : theatres[num].getShows())
-                if (s.getSeatsSold() < theatres[num].getNumSeats()) sum++;
+                if (s != null)
+                    if (s.getSeatsSold() < theatres[num].getNumSeats()) sum++;
             if (sum == 0) System.out.println("All Showings For That Theatre Are Filled");
             else break;
         }
 
-        System.out.println("Show times are:");
+        System.out.println("Show Times are:");
         sum = 3;
         for (Showing s : theatres[num].getShows()) {
             if (s != null) System.out.println(s.toPrettyString() + "/" + theatres[num].getNumSeats());
             else sum--;
         }
         int num2 = getInput(1, sum, "Select Showing to Purchase Tickets For (1-" + sum + ")");
-
         int num3 = getInput(1, theatres[num].getNumSeats() - theatres[num].getShows()[num2 - 1].getSeatsSold(),
                 "Select Number of Tickets to Purchase");
         System.out.println(num3 + " Tickets Purchased for the " + theatres[num].getShows()[num2 - 1].getShowTimePretty() +
@@ -422,6 +440,7 @@ public class TheatreManager {
             fail = true;
             for (int i = 0; i < 10; i++) {
                 if (theatres[i] == null) continue;
+                if (theatres[i].getMovie() == null) continue;
                 if (theatres[i].getMovie().getName().equals(input)) {
                     num = i;
                     fail = false;

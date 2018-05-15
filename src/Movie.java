@@ -1,6 +1,6 @@
 import java.io.Serializable;
 
-public class Movie implements Serializable{
+public class Movie implements Serializable {
 
     static final long serialVersionUID = 222L;
     private final String name;
@@ -21,9 +21,7 @@ public class Movie implements Serializable{
 
     public int getLengthRounded() {
         if (length % 30 == 0) return length;
-        else {
-            return 30*(length/30 + 1);
-        }
+        else return 30 * (length / 30 + 1);
     }
 
     private String getLengthPretty() {
