@@ -118,8 +118,7 @@ public class TheatreManager {
             System.out.println("All Theatres Have a Movie");
             return;
         }
-        good = false;
-        String name = "", genre, rating;
+        String name, genre, rating;
         int length, theatreNum;
 
         Name_Loop:
