@@ -33,6 +33,7 @@ public class TheatreManager {
         String end;
         int first = i / 60;
         int second = i % 60;
+        if (first == 0) first = 12;
         end = first + ":" + String.format("%02d", second);
         return end;
     }
@@ -208,7 +209,7 @@ public class TheatreManager {
         }
 
         while (true) {
-            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name");
+            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name: ");
             if (theatres[num].getShows()[2] != null) {
                 System.out.println("That Theatre already has three showings");
             } else if (theatres[num].getMovie() == null) {
@@ -223,7 +224,7 @@ public class TheatreManager {
         Showing s;
         String input;
         while (true) {
-            input = getAcceptableString("Enter ShowTime in hh:mm", "Invalid Time", times);
+            input = getAcceptableString("Enter ShowTime in hh:mm ", "Invalid Time", times);
             if (input.length() == 4) input = "0" + input;
             num2 = (Integer.parseInt(input.substring(0, 2)) % 12) * 60 + Integer.parseInt(input.substring(3)); //Convert time to minutes after 12
             s = new Showing(num2, 0);
@@ -245,7 +246,7 @@ public class TheatreManager {
         }
         int num;
         while (true) {
-            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name");
+            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name: ");
             if (theatres[num].getShows()[0] == null) {
                 System.out.println("That Theatre Has No Showings");
             } else {
@@ -258,7 +259,7 @@ public class TheatreManager {
             if (s != null) System.out.println(s.toPrettyString());
             else sum--;
         }
-        int num2 = getInput(1, sum, "Select Showing to Remove (1-" + sum + ")");
+        int num2 = getInput(1, sum, "Select Showing to Remove (1-" + sum + "): ");
         System.out.println("Removed Showing At " + theatres[num].getShows()[num2 - 1].getShowTimePretty() + " From Theatre " + (num + 1));
         theatres[num].removeShow(num2 - 1);
     }
@@ -280,7 +281,7 @@ public class TheatreManager {
         }
         int num;
         while (true) {
-            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name");
+            num = getTheatreByNameOrNumber("Enter Theatre Number or its Movie Name: ");
             sum = 0;
             if (theatres[num].getShows()[0] == null) {
                 System.out.println("That Theatre has no Showings");
@@ -299,7 +300,7 @@ public class TheatreManager {
             if (s != null) System.out.println(s.toPrettyString() + "/" + theatres[num].getNumSeats());
             else sum--;
         }
-        int num2 = getInput(1, sum, "Select Showing to Purchase Tickets For (1-" + sum + ")");
+        int num2 = getInput(1, sum, "Select Showing to Purchase Tickets For (1-" + sum + "): ");
         int num3 = getInput(1, theatres[num].getNumSeats() - theatres[num].getShows()[num2 - 1].getSeatsSold(),
                 "Select Number of Tickets to Purchase");
         System.out.println(num3 + " Tickets Purchased for the " + theatres[num].getShows()[num2 - 1].getShowTimePretty() +
@@ -454,7 +455,7 @@ public class TheatreManager {
         return num;
     }
 
-    private boolean willThisShowingLockUpTheTheatre(Showing s, Movie m) {
+    private boolean willThisShowingLockUpTheTheatre(Showing s, Movie m) { //Turns out this isn't actually useful
         int movieLength = m.getLengthRounded();
         int showingStart = s.getShowTime();
 
@@ -472,7 +473,8 @@ public class TheatreManager {
     private boolean doesThisShowingFitTheTheatre(Showing s, Theatre t) {
         int space = t.getMovie().getLengthRounded() + 30;
         for (Showing show : t.getShows())
-            if (Math.abs(show.getShowTime() - s.getShowTime()) < space) return false;
+            if (show != null)
+                if (Math.abs(show.getShowTime() - s.getShowTime()) < space) return false;
         return true;
     }
 }
